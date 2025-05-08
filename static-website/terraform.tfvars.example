@@ -1,0 +1,3 @@
+bucket_name  = "ta-static-website-dev"
+environment  = "dev"
+region       = "ap-southeast-1"
