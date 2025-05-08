@@ -13,6 +13,7 @@ provider "aws" {
 #   api error AccessDenied: User: [User ARN] is not authorized to perform: s3:PutBucketPolicy on resource: [S3 Resource ARN] because public policies are blocked by the BlockPublicPolicy block public access setting
 # - Solution
 #   Add `depends_on = [aws_s3_bucket_public_access_block.website]` inside `aws_s3_bucket_policy` resource
+#   Add `aws_s3_bucket_public_access_block` resource
 
 # Create the S3 bucket
 resource "aws_s3_bucket" "website" {
