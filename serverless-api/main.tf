@@ -37,6 +37,13 @@ resource "aws_lambda_function" "api_handler" {
   filename         = "${path.module}/lambda.zip"
   source_code_hash = filebase64sha256("${path.module}/lambda.zip")
 
+  # Add environment variable for table name
+  environment {
+    variables = {
+      DDB_TABLE_NAME = aws_dynamodb_table.records.name
+    }
+  }
+
   tags = {
     Environment = var.environment
   }
@@ -80,3 +87,40 @@ resource "aws_lambda_permission" "allow_apigw_invoke" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.http_api.execution_arn}/*/*"
 }
+
+
+# DynamoDB table to store incoming records
+resource "aws_dynamodb_table" "records" {
+  name         = "${var.project_name}-records"
+  billing_mode = "PAY_PER_REQUEST"  # Scales automatically
+  hash_key     = "id"
+
+  attribute {
+    name = "id"
+    type = "S"
+  }
+
+  tags = {
+    Environment = var.environment
+  }
+}
+
+# Grant Lambda permission to write to DynamoDB
+resource "aws_iam_role_policy" "lambda_dynamodb_access" {
+  name = "lambda-dynamodb-access"
+  role = aws_iam_role.lambda_exec.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "dynamodb:PutItem"
+        ],
+        Effect = "Allow",
+        Resource = aws_dynamodb_table.records.arn
+      }
+    ]
+  })
+}
+

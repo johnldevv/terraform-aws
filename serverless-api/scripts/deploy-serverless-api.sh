@@ -1,10 +1,13 @@
 #!/bin/bash
 
-set -e  # Exit on any error
+set -e  # Exit on error
 
-echo "📦 Zipping Lambda handler..."
+echo "📦 Installing Lambda dependencies..."
 cd lambda
-zip ../lambda.zip handler.js > /dev/null
+npm install @aws-sdk/client-dynamodb uuid > /dev/null
+
+echo "📦 Zipping Lambda code with dependencies..."
+zip -r ../lambda.zip . > /dev/null
 cd ..
 
 echo "🚀 Running Terraform init..."
